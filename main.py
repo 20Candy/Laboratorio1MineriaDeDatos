@@ -36,10 +36,9 @@ print("\n")
 print(explore(data, method="summarize"))
 
 
-#PREGUNTA 2_____________________________________________________
+#PREGUNTA 6_____________________________________________________
 
 #Limpiar datos
-
 
 # formato hora
 def to_time(start_time):
@@ -84,6 +83,80 @@ data.to_csv("modificada.csv", index=False)
 data = pd.read_csv("modificada.csv")
 print(explore(data, method="summarize"))
 
+
+#Explorar datos
+
+# Home hits vs away hits
+sns.scatterplot(x="home_team_hits", y="away_team_hits", data=data)
+plt.xlabel("Home Team Hits")
+plt.ylabel("Away Team Hits")
+plt.show()
+
+# Home runs vs away runs
+sns.scatterplot(x="home_team_runs", y="away_team_runs", data=data)
+plt.xlabel("Home Team Runs")
+plt.ylabel("Away Team Runs")
+plt.show()
+
+# Home errors vs away errors
+sns.scatterplot(x="home_team_errors", y="away_team_errors", data=data)
+plt.xlabel("Home Team Errors")
+plt.ylabel("Away Team Errors")
+plt.show()
+
+# Attendance vs game tye
+sns.barplot(x="game_type", y="attendance", data=data)
+plt.xlabel("Game Type")
+plt.ylabel("Attendance")
+plt.xticks(rotation=90)
+plt.show()
+
+
+#Attendance vs local team
+sns.barplot(x="home_team", y="attendance", data=data)
+plt.xlabel("Local Team")
+plt.ylabel("Attendance")
+plt.xticks(rotation=90)
+plt.show()
+
+#Attendance vs away team
+sns.barplot(x="away_team", y="attendance", data=data)
+plt.xlabel("Away Team")
+plt.ylabel("Attendance")
+plt.xticks(rotation=90)
+plt.show()
+
+#Most common home team
+team_counts = data["home_team"].value_counts()
+sns.barplot(x=team_counts.index, y=team_counts.values)
+plt.xlabel("Home Team")
+plt.ylabel("Numero de partidos")
+plt.xticks(rotation=90)
+plt.show()
+
+#Most common away team
+team_counts = data["away_team"].value_counts()
+sns.barplot(x=team_counts.index, y=team_counts.values)
+plt.xlabel("Home Team")
+plt.ylabel("Numbero de partidos")
+plt.xticks(rotation=90)
+plt.show()
+
+
+
+#PREGUNTA 4_____________________________________________________
+
+# separar las variables numéricas y categóricas
+num_vars = data.select_dtypes(include=['int', 'float'])
+cat_vars = data.select_dtypes(exclude=['int', 'float'])
+
+# matriz de correlación
+sns.heatmap(num_vars.corr(), annot=True)
+plt.show()
+
+#pandas profiling report
+profile = ProfileReport(data, title="Pandas Profiling Report")
+profile.to_file("report.html")
 
 
 
