@@ -197,8 +197,10 @@ dummies = ['home_team', 'away_team', 'venue', 'game_type']
 position = [datos.columns.get_loc(c) for c in dummies if c in datos]
 
 # columntransformer all dummie positions
-ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(sparse=False), position)], remainder='passthrough')
+ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(sparse_output=False), dummies)], remainder='passthrough')
 X = np.array(ct.fit_transform(X))
+
+listado_columnas = (ct.get_feature_names_out())
 
 #______________________________________________________________
 
@@ -210,11 +212,59 @@ regresor = LinearRegression()
 regresor.fit(X_entreno, y_entreno)
 
 y_pred = regresor.predict(X_prueba)
-np.set_printoptions(precision=2)
 
-print(X)
+array_variables_busqueda = []
+home = ["home", "Los Angeles Dodgers"]
+away = ["away", "Chicago Cubs"]
+venue = ["venue", "Dodger Stadium"]
+game_type = ["game_type", "Night Game, on grass"]
+date = "date"
+start_time = "start_time"
 
-print(regresor.predict([[1, 0, 0, 160000, 130000, 300000]]))
+for i in range(len(listado_columnas)):
+    if home[0] in listado_columnas[i]:
+        if home[1] in listado_columnas[i]:
+            array_variables_busqueda.append(1)
+        else:
+            array_variables_busqueda.append(0)
 
-print(regresor.coef_)
-print(regresor.intercept_)
+    elif away[0] in listado_columnas[i]:
+        if away[1] in listado_columnas[i]:
+            array_variables_busqueda.append(1)
+        else:
+            array_variables_busqueda.append(0)
+
+    elif venue[0] in listado_columnas[i]:
+        if venue[1] in listado_columnas[i]:
+            array_variables_busqueda.append(1)
+        else:
+            array_variables_busqueda.append(0)
+
+    elif game_type[0] in listado_columnas[i]:
+        if game_type[1] in listado_columnas[i]:
+            array_variables_busqueda.append(1)
+        else:
+            array_variables_busqueda.append(0)
+
+    elif date in listado_columnas[i]:
+        array_variables_busqueda.append(5)
+
+    elif start_time in listado_columnas[i]:
+        array_variables_busqueda.append(19)
+
+pred = regresor.predict([array_variables_busqueda])
+
+print("\n\nPredicción de asistencia para el partido entre Los Angeles Dodgers y Chicago Cubs en el Dodger Stadium (un sabado a las 19:00):", pred[0])
+
+print("\nR^2:",regresor.score(X_entreno, y_entreno))
+
+coeficientes = regresor.coef_
+intercepto = regresor.intercept_
+
+ecuacion = "y = "
+for i in range(len(coeficientes)):
+    ecuacion += str(coeficientes[i]) + "x" + str(i) + " + "
+
+ecuacion += str(intercepto)
+
+print("\nEcuacion:", ecuacion)
