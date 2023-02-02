@@ -54,7 +54,7 @@
 #     return datetime.time(hour, minute)
 
 
-# #Attendance a integer
+# # #Attendance a integer
 # data['attendance'] = data['attendance'].str.strip("']").str.replace(',','')
 # data = data[pd.to_numeric(data['attendance'], errors='coerce').notnull()]
 # data['attendance'] = pd.to_numeric(data['attendance'])
@@ -74,14 +74,27 @@
 # #cambiar tipo de dato de la fecha
 # data['date'] = pd.to_datetime(data['date'])
 
+# #pasar a fecha 0/0/0 a dia de semana int
+# data['date'] = data['date'].apply(lambda x: x.weekday())
+
 # #cambiar formato de la hora
 # data['start_time'] = data['start_time'].apply(to_time)
+
+# #pasar hora de 00:00:00 a solo hora
+# data['start_time'] = data['start_time'].apply(lambda x: x.hour)
+
+# #make attendence the last column
+# cols = list(data.columns.values)
+# cols.pop(cols.index('attendance'))
+# data = data[cols+['attendance']]
 
 # data.to_csv("modificada.csv", index=False)
 
 # #exploarar nuevos datos
 # data = pd.read_csv("modificada.csv")
 # print(explore(data, method="summarize"))
+
+
 
 
 # #Explorar datos
@@ -164,92 +177,44 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-## Importar el conjunto de datos
-
 datos = pd.read_csv('modificada.csv')
+#drop unnecesary columns
+datos.drop(['away_team_errors'], axis=1, inplace=True) #no aporta info
+datos.drop(['home_team_errors'], axis=1, inplace=True) #no aporta info
+datos.drop(['away_team_hits'], axis=1, inplace=True) #no aporta info
+datos.drop(['home_team_hits'], axis=1, inplace=True) #no aporta info
+datos.drop(['away_team_runs'], axis=1, inplace=True) #no aporta info
+datos.drop(['home_team_runs'], axis=1, inplace=True) #no aporta info
+datos.drop(['game_duration'], axis=1, inplace=True) #no aporta info
+
 X = datos.iloc[:, :-1]
 y = datos.iloc[:, -1]
 
-print(X)
-print(y)
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
 
-#codificar las variables categoricas
+dummies = ['home_team', 'away_team', 'venue', 'game_type']
+position = [datos.columns.get_loc(c) for c in dummies if c in datos]
 
-def codif_y_ligar(dataframe_original, variables_a_codificar):
-    dummies = pd.get_dummies(dataframe_original[[variables_a_codificar]])
-    res = pd.concat([dataframe_original, dummies], axis = 1)
-    res = res.drop([variables_a_codificar], axis = 1)
-    return(res) 
+# columntransformer all dummie positions
+ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(sparse=False), position)], remainder='passthrough')
+X = np.array(ct.fit_transform(X))
 
-variables_a_codificar = ['away_team', 'game_type', 'home_team']   #  Esta es una lista de variables
-for variable in variables_a_codificar:
-    X = codif_y_ligar(X, variable)
-
-### Codificar la variable dependiente
-y = pd.get_dummies(y)
-print(y)
-
-
-#quitar columnas innecesarias
-X = X.drop(['date', 'start_time'], axis = 1)
-print(X)
-
-## División del conjunto de datos en un conjunto para entrenamiento y otro para pruebas
+#______________________________________________________________
 
 from sklearn.model_selection import train_test_split
-X_entreno, X_prueba, y_entreno, y_prueba = train_test_split(X, y, test_size = 1/3, random_state = 0)
+X_entreno, X_prueba, y_entreno, y_prueba = train_test_split(X, y, test_size = 0.2, random_state = 0)
 
-print(X_entreno)
-print(X_prueba)
-print(y_entreno)
-print(y_prueba)
-
-#escalamiento de caracteristicas
-from sklearn.preprocessing import MinMaxScaler
-
-escalador = MinMaxScaler()
-X_entreno['attendance'] = escalador.fit_transform(X_entreno['attendance'].values.reshape(-1,1))
-print(X_entreno)
-
-## Entrenamiento del modelo de regresión lineal simple con el conjunto de datos para entrenamiento
 from sklearn.linear_model import LinearRegression
-regresor_lin = LinearRegression()
-regresor_lin.fit(X_entreno, y_entreno)
+regresor = LinearRegression()
+regresor.fit(X_entreno, y_entreno)
 
+y_pred = regresor.predict(X_prueba)
+np.set_printoptions(precision=2)
 
-from sklearn.preprocessing import PolynomialFeatures
-# Parte 1
-regresor_poli = PolynomialFeatures(degree = 2)
-X_poli = regresor_poli.fit_transform(X)
-# Parte 2
-regresor_lin_2 = LinearRegression()
-regresor_lin_2.fit(X_poli, y)
+print(X)
 
-print("-----------------------------------------")
+print(regresor.predict([[1, 0, 0, 160000, 130000, 300000]]))
 
-print(X_entreno.size)
-print(y_entreno.size)
-
-#Visualización de resultados con Regresión Lineal
-plt.scatter(X_entreno, y_entreno, color = 'red')
-plt.plot(X_entreno, regresor_lin.predict(X_entreno), color = 'blue')
-plt.title('Verdad o Mentira (Regresion Lineal)')
-plt.xlabel('Nivel de Posición')
-plt.ylabel('Salario')
-plt.show()
-
-
-#Visualización de resultados con Regresión Polinomial
-
-plt.scatter(X_entreno, y_entreno, color = 'red')
-plt.plot(X_entreno, regresor_lin_2.predict(regresor_poli.fit_transform(X_entreno)), color = 'blue')
-plt.title('Verdad o Mentira (Regresión Polinomial)')
-plt.xlabel('Nivel del Puesto')
-plt.ylabel('Salario')
-plt.show()
-
-#Predicción de los resultados con Regresión Lineal
-regresor_lin.predict([[6.5]])
-
-#Predicción de los resultados con Regresión Polinomial
-regresor_lin_2.predict(regresor_poli.fit_transform([[6.5]]))
+print(regresor.coef_)
+print(regresor.intercept_)
