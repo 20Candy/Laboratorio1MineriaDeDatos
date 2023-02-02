@@ -178,6 +178,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 datos = pd.read_csv('modificada.csv')
+
+#quickda which columns affect attendance
+a = datos.corr()['attendance'].sort_values(ascending=False) 
+print("\nVariables que afectan la asistencia:")
+print(a)
+
+
+
 #drop unnecesary columns
 datos.drop(['away_team_errors'], axis=1, inplace=True) #no aporta info
 datos.drop(['home_team_errors'], axis=1, inplace=True) #no aporta info
@@ -254,7 +262,7 @@ for i in range(len(listado_columnas)):
 
 pred = regresor.predict([array_variables_busqueda])
 
-print("\n\nPredicción de asistencia para el partido entre Los Angeles Dodgers y Chicago Cubs en el Dodger Stadium (un sabado a las 19:00):", pred[0])
+print("\n\nPredicción de asistencia para el partido entre Los Angeles Dodgers y Chicago Cubs en el Dodger Stadium (un sabado a las 19:00 en estadio de grama):", pred[0])
 
 print("\nR^2:",regresor.score(X_entreno, y_entreno))
 
