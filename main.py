@@ -263,7 +263,7 @@ intercepto = regresor.intercept_
 
 ecuacion = "y = "
 for i in range(len(coeficientes)):
-    ecuacion += str(coeficientes[i]) + "x" + str(i) + " + "
+    ecuacion += str(coeficientes[i]) + "X_" + str(i) + " + "
 
 ecuacion += str(intercepto)
 
