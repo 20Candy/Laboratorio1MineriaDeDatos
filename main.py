@@ -173,106 +173,106 @@
 
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import pandas as pd
 
-datos = pd.read_csv('modificada.csv')
+# datos = pd.read_csv('modificada.csv')
 
-#quickda which columns affect attendance
-a = datos.corr()['attendance'].sort_values(ascending=False) 
-print("\nVariables que afectan la asistencia:")
-print(a)
+# #quickda which columns affect attendance
+# a = datos.corr()['attendance'].sort_values(ascending=False) 
+# print("\nVariables que afectan la asistencia:")
+# print(a)
 
 
 
-#drop unnecesary columns
-datos.drop(['away_team_errors'], axis=1, inplace=True) #no aporta info
-datos.drop(['home_team_errors'], axis=1, inplace=True) #no aporta info
-datos.drop(['away_team_hits'], axis=1, inplace=True) #no aporta info
-datos.drop(['home_team_hits'], axis=1, inplace=True) #no aporta info
-datos.drop(['away_team_runs'], axis=1, inplace=True) #no aporta info
-datos.drop(['home_team_runs'], axis=1, inplace=True) #no aporta info
-datos.drop(['game_duration'], axis=1, inplace=True) #no aporta info
+# #drop unnecesary columns
+# datos.drop(['away_team_errors'], axis=1, inplace=True) #no aporta info
+# datos.drop(['home_team_errors'], axis=1, inplace=True) #no aporta info
+# datos.drop(['away_team_hits'], axis=1, inplace=True) #no aporta info
+# datos.drop(['home_team_hits'], axis=1, inplace=True) #no aporta info
+# datos.drop(['away_team_runs'], axis=1, inplace=True) #no aporta info
+# datos.drop(['home_team_runs'], axis=1, inplace=True) #no aporta info
+# datos.drop(['game_duration'], axis=1, inplace=True) #no aporta info
 
-X = datos.iloc[:, :-1]
-y = datos.iloc[:, -1]
+# X = datos.iloc[:, :-1]
+# y = datos.iloc[:, -1]
 
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder
+# from sklearn.compose import ColumnTransformer
+# from sklearn.preprocessing import OneHotEncoder
 
-dummies = ['home_team', 'away_team', 'venue', 'game_type']
-position = [datos.columns.get_loc(c) for c in dummies if c in datos]
+# dummies = ['home_team', 'away_team', 'venue', 'game_type']
+# position = [datos.columns.get_loc(c) for c in dummies if c in datos]
 
-# columntransformer all dummie positions
-ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(sparse_output=False), dummies)], remainder='passthrough')
-X = np.array(ct.fit_transform(X))
+# # columntransformer all dummie positions
+# ct = ColumnTransformer(transformers=[('encoder', OneHotEncoder(sparse_output=False), dummies)], remainder='passthrough')
+# X = np.array(ct.fit_transform(X))
 
-listado_columnas = (ct.get_feature_names_out())
+# listado_columnas = (ct.get_feature_names_out())
 
-#______________________________________________________________
+# #______________________________________________________________
 
-from sklearn.model_selection import train_test_split
-X_entreno, X_prueba, y_entreno, y_prueba = train_test_split(X, y, test_size = 0.2, random_state = 0)
+# from sklearn.model_selection import train_test_split
+# X_entreno, X_prueba, y_entreno, y_prueba = train_test_split(X, y, test_size = 0.2, random_state = 0)
 
-from sklearn.linear_model import LinearRegression
-regresor = LinearRegression()
-regresor.fit(X_entreno, y_entreno)
+# from sklearn.linear_model import LinearRegression
+# regresor = LinearRegression()
+# regresor.fit(X_entreno, y_entreno)
 
-y_pred = regresor.predict(X_prueba)
+# y_pred = regresor.predict(X_prueba)
 
-array_variables_busqueda = []
-home = ["home", "Los Angeles Dodgers"]
-away = ["away", "Chicago Cubs"]
-venue = ["venue", "Dodger Stadium"]
-game_type = ["game_type", "Night Game, on grass"]
-date = "date"
-start_time = "start_time"
+# array_variables_busqueda = []
+# home = ["home", "Los Angeles Dodgers"]
+# away = ["away", "Chicago Cubs"]
+# venue = ["venue", "Dodger Stadium"]
+# game_type = ["game_type", "Night Game, on grass"]
+# date = "date"
+# start_time = "start_time"
 
-for i in range(len(listado_columnas)):
-    if home[0] in listado_columnas[i]:
-        if home[1] in listado_columnas[i]:
-            array_variables_busqueda.append(1)
-        else:
-            array_variables_busqueda.append(0)
+# for i in range(len(listado_columnas)):
+#     if home[0] in listado_columnas[i]:
+#         if home[1] in listado_columnas[i]:
+#             array_variables_busqueda.append(1)
+#         else:
+#             array_variables_busqueda.append(0)
 
-    elif away[0] in listado_columnas[i]:
-        if away[1] in listado_columnas[i]:
-            array_variables_busqueda.append(1)
-        else:
-            array_variables_busqueda.append(0)
+#     elif away[0] in listado_columnas[i]:
+#         if away[1] in listado_columnas[i]:
+#             array_variables_busqueda.append(1)
+#         else:
+#             array_variables_busqueda.append(0)
 
-    elif venue[0] in listado_columnas[i]:
-        if venue[1] in listado_columnas[i]:
-            array_variables_busqueda.append(1)
-        else:
-            array_variables_busqueda.append(0)
+#     elif venue[0] in listado_columnas[i]:
+#         if venue[1] in listado_columnas[i]:
+#             array_variables_busqueda.append(1)
+#         else:
+#             array_variables_busqueda.append(0)
 
-    elif game_type[0] in listado_columnas[i]:
-        if game_type[1] in listado_columnas[i]:
-            array_variables_busqueda.append(1)
-        else:
-            array_variables_busqueda.append(0)
+#     elif game_type[0] in listado_columnas[i]:
+#         if game_type[1] in listado_columnas[i]:
+#             array_variables_busqueda.append(1)
+#         else:
+#             array_variables_busqueda.append(0)
 
-    elif date in listado_columnas[i]:
-        array_variables_busqueda.append(5)
+#     elif date in listado_columnas[i]:
+#         array_variables_busqueda.append(5)
 
-    elif start_time in listado_columnas[i]:
-        array_variables_busqueda.append(19)
+#     elif start_time in listado_columnas[i]:
+#         array_variables_busqueda.append(19)
 
-pred = regresor.predict([array_variables_busqueda])
+# pred = regresor.predict([array_variables_busqueda])
 
-print("\n\nPredicción de asistencia para el partido entre Los Angeles Dodgers y Chicago Cubs en el Dodger Stadium (un sabado a las 19:00 en estadio de grama):", pred[0])
+# print("\n\nPredicción de asistencia para el partido entre Los Angeles Dodgers y Chicago Cubs en el Dodger Stadium (un sabado a las 19:00 en estadio de grama):", pred[0])
 
-print("\nR^2:",regresor.score(X_entreno, y_entreno))
+# print("\nR^2:",regresor.score(X_entreno, y_entreno))
 
-coeficientes = regresor.coef_
-intercepto = regresor.intercept_
+# coeficientes = regresor.coef_
+# intercepto = regresor.intercept_
 
-ecuacion = "y = "
-for i in range(len(coeficientes)):
-    ecuacion += str(coeficientes[i]) + "X_" + str(i) + " + "
+# ecuacion = "y = "
+# for i in range(len(coeficientes)):
+#     ecuacion += str(coeficientes[i]) + "X_" + str(i) + " + "
 
-ecuacion += str(intercepto)
+# ecuacion += str(intercepto)
 
-print("\nEcuacion:", ecuacion)
+# print("\nEcuacion:", ecuacion)
